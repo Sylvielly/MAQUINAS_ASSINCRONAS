@@ -1,0 +1,68 @@
+%===============================================================================
+%MAQUINAS ASSINCRONAS
+%AUTORA: SYLVIELLY S. SOUSA                           %MATRICULA: 20212012220146
+%SEMESTRE 2023.2
+%PROF.: FABIO MONTENEGRO
+%ATIVIDADE TEOREMA DE THEVENIN: CAPITULO 05                 %ENTREGA: 05/09/2023
+%===============================================================================
+
+%===============================================================================
+%                                 CALCULOS
+%===============================================================================
+%considere o circuito equivalente por fase do MIT
+%este equacionamento esta realizado por fase do MIT
+
+disp('MAQUINAS ASSINCRONAS: ATIVIDADE TEOREMA DE THEVENIN')
+disp('')
+
+%constantes e afins
+j = sqrt(-1);
+
+%Dados
+R_1 = input("Digite R1 \t");
+X_1 = input("Digite X1 \t");
+X_m = input("Digite Xm \t");
+V_fase = input("Digite Vf \t");
+R_linha_2 = input("Digite R'_2 \t");
+X_linha_2 = input("Digite X'_2 \t");
+polos = input("Digite o numero de polos \t");
+f_rede = input("Digite a frequencia da rede f_rede \t");
+
+%Obs.: Em Thevenin primeiramente desliga-se a fonte e retira-se os elementos que
+%nao estao conectados aos terminais de onde se deseja saber a tensao entre A e B
+%Vth e Zth nao dependem do escorregamento
+
+disp('')
+disp('RESULTADOS')
+disp('')
+
+%velocidade sincrona do motor
+N_s = (120*f_rede)/polos
+omega_s = 2*pi*f_rede
+%impedancia de Thevenin
+Z_th = ((R_1+j*X_1)*(j*X_m))/((R_1+j*X_1)+(j*X_m));
+Z_thevenin = abs(Z_th)
+theta_z_th = angle(Z_th)*180/pi;
+
+%resistencia de Thevenin
+R_th = real(Z_th)
+
+%reatancia de Thevenin
+X_th = imag(Z_th)
+
+%tensao de Thevenin
+V_th = (V_fase*(j*X_m)/(R_1+(j*X_1+j*X_m)));
+
+%modulo tensao de Thevenin
+V_thevenin = abs(V_th)
+
+%fase tensao de Thevenin
+theta_th = angle(V_th)*180/pi;
+
+%corrente I_2 em funcao do escorregamento
+s = 0:0.001:1;
+N_r = N_s.*(1 - s);
+I_2_s =(V_th./((R_th + (R_linha_2./s))+(j*X_th + j*X_linha_2)));
+I_2_ss = abs(I_2_s);
+T_mec_s = ((3.*(I_2_ss.^2).*(R_linha_2./s))/omega_s);
+plot(s,T_mec_s)
