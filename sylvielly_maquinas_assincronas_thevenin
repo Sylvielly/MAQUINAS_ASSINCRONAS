@@ -65,4 +65,14 @@ N_r = N_s.*(1 - s);
 I_2_s =(V_th./((R_th + (R_linha_2./s))+(j*X_th + j*X_linha_2)));
 I_2_ss = abs(I_2_s);
 T_mec_s = ((3.*(I_2_ss.^2).*(R_linha_2./s))/omega_s);
-plot(s,T_mec_s)
+
+%===============================================================================
+%                           GERACAO DE GRAFICOS
+%===============================================================================
+%grafico em tempo continuo
+figure(1)
+plot(N_r,T_mec_s,'b','LineWidth',3)
+grid on
+title('Velocidade x Torque Motor de Indução','FontName','Times','FontSize',22);
+xlabel('Velocidade[rpm]', 'FontName','Times','FontSize',18);
+ylabel('T_m_e_c(s) [Nm]', 'FontName','Times','FontSize',18);
