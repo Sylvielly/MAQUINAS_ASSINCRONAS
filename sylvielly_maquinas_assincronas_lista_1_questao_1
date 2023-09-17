@@ -1,0 +1,142 @@
+%===============================================================================
+%MAQUINAS ASSINCRONAS
+%AUTORA: SYLVIELLY S. SOUSA                           %MATRICULA: 20212012220146
+%SEMESTRE 2023.2
+%PROF.: FABIO MONTENEGRO
+%ATIVIDADE LISTA 1                                          %ENTREGA: 19/09/2023
+%===============================================================================
+
+%===============================================================================
+%                                 CALCULOS
+%===============================================================================
+%constantes e afins
+j = sqrt(-1);
+
+%QUESTAO 01 - LISTA 01
+
+%dados do circuito equivalente por fase
+R_1 = input("Digite R1 \t");
+X_1 = input("Digite X1 \t");
+X_m = input("Digite Xm \t");
+V_in = input("Digite V_in \t");
+V_in_2 = input("Digite V_in_2 \t");
+R_2_linha = input("Digite R'_2 \t");
+X_2_linha = input("Digite X'_2 \t");
+f_rede = input("Digite a frequencia da rede f_rede \t");
+P_rot_nom = input("Digite as perdas rotacionais nominal P_rot_nom \t");      %perdas rotacionais [W] em relacao a rotacao nominal
+%P_rot = input("Digite as perdas rotacionais P_rot \t");                     %perdas rotacionais [W] quando gira 1760 rpm
+P_motor_cv =  input("Digite a potencia do motor em cv \t");
+n_rotor =  input("Digite a rotacao nominal do motor \t");
+n_sinc = input("Digite o a velocidade sincrona \t");
+fator_servico = input("Digite o fator de servico \t");
+FP_2 = input("Digite o fator de potencia desejado para correcao \t");
+
+disp('')
+disp(' ---- RESPOSTAS ----')
+%item a: ligacao do motor
+disp('item 1.1: O motor esta ligado em estrela')
+disp('')
+%item b: velocidade nominal
+disp('item 1.2: a velocidade nominal')
+n_rotor
+disp('')
+%item c: velocidade sincrona
+disp('item 1.3: a velocidade sincrona')
+n_sinc
+disp('')
+%escorregamento do referido motor
+escorregamento = (n_sinc - n_rotor)/n_sinc
+
+%numero de polos
+polos = (120*f_rede)/n_sinc
+
+%calculo do circuito equivalente
+disp('item 1.4: Circuito equivalente por fase')
+R_2_s = R_2_linha / escorregamento
+Zeq_1 = (((j*X_m*(R_2_s + j*X_2_linha))/(R_2_s+(j*X_m + j*X_2_linha)))+(R_1 + j*X_1))
+Zeq_1_mag = abs(Zeq_1)
+theta_zeq_1 = angle(Zeq_1)*180/pi
+disp('')
+%corrente de entrada do motor
+disp('item 1.5: corrente de entrada do motor')
+I_fase = V_in / Zeq_1_mag
+theta_corrente_f = 0 - theta_zeq_1
+disp('OBS.: corrente de linha a propria corrente de fase')
+disp('')
+%rendimento percentual do motor
+disp('item 1.6: rendimento percentual do motor')
+FP_1 = cos(angle(Zeq_1))
+theta_fp_novo = acos(FP_2)*180/pi
+P_in = 3*V_in*I_fase*FP_1
+P_cue = 3*R_1*(I_fase^2)
+P_g = P_in - P_cue
+P_md = (1-escorregamento)*P_g
+P_out = P_md - P_rot_nom
+n_percentual = (P_out/P_in)*100
+disp('')
+%rendimento percentual do motor
+disp('item 1.7: conjugado de saida [Nm]')
+sigma_0 = P_out/(2*pi*(n_rotor/60))
+disp('')
+%rendimento percentual do motor
+disp('item 1.8: conjugado de partida [Nm]')
+sigma_g = P_g/(2*pi*(n_sinc/60))
+disp('')
+%carregamento percentual do motor
+disp('item 1.9: carregamento percentual do motor')
+P_out_op = (P_out/1000)/0.735;                                       %conversao para cv
+carregamento = (P_out_op/P_motor_cv)*100
+disp('')
+%condicao para carregamento do motor
+  if (carregamento<=100)
+           disp('Motor subcarregado');
+          else
+           disp('Motor sobrecarregado');
+  endif
+disp('')
+%dimensionamento do banco de capacitores (kVAr)
+disp('item 1.10: Dimensionamento do banco de capacitores')
+fi_1 = tan(angle(Zeq_1));
+fi_2 = tan(theta_fp_novo*pi/180);
+Qc_3f = (P_in/1000)*(fi_1 - fi_2)
+
+%valor do capacitor em uF
+disp('item 1.11: Valor do capacitor em uF')
+Qc_1f = Qc_3f/3
+Cap_f = Qc_1f/(2*pi*(V_in^2))
+disp('')
+
+%para condicao de partida
+disp('item 1.21: Corrente de partida do MIT')
+n_rotor_partida = 0;
+escorregamento_partida = (n_sinc - n_rotor_partida)/n_sinc
+R_2_s_partida = R_2_linha/escorregamento_partida
+Zeq_partida = (((j*X_m*(R_2_s_partida + j*X_2_linha))/(R_2_s_partida+(j*X_m + j*X_2_linha)))+(R_1 + j*X_1))
+Zeq_partida_mag = abs(Zeq_partida)
+theta_zeq_partida = angle(Zeq_partida)*180/pi
+I_partida = V_in/Zeq_partida_mag
+disp('')
+
+disp('item 1.22: Relacao Ip/In')
+relacao_ip_in = I_partida/I_fase
+disp('')
+
+disp('item 1.23: Relacao Zpartida/Znominal')
+Z_partida = Zeq_partida_mag
+Z_nominal = Zeq_1_mag
+relacao_Zpartida_Znominal = (Z_partida/Z_nominal)*100
+disp('')
+
+disp('item 1.24: Correntes que devem ser expressas na placa do motor')
+disp('Resposta: Devem ser expressas as duas correntes para as duas tensoes de operacao')
+disp('')
+
+disp('item 1.25: Maxima potencia de trabalho do motor sem se danificar')
+%corrente para ligacao em 220V - delta
+I_maxima_220 = I_fase*fator_servico
+P_maximo_220 = V_in*I_maxima_220
+
+%corrente para ligacao em 380 - estrela
+I_maxima_380 = (I_fase/sqrt(3))*fator_servico
+P_maximo_380 = V_in*I_maxima_380
+disp('')
